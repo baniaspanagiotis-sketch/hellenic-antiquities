@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: ha_db
+    environment:
+      POSTGRES_DB: ha
+      POSTGRES_USER: ha
+      POSTGRES_PASSWORD: ha_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - ha_pgdata:/var/lib/postgresql/data
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.6
+    container_name: ha_search
+    environment:
+      MEILI_MASTER_KEY: dev_master_key_change_later
+    ports:
+      - "7700:7700"
+    volumes:
+      - ha_meili:/meili_data
+
+  minio:
+    image: minio/minio:latest
+    container_name: ha_minio
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio_password
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ha_minio:/data
+
+volumes:
+  ha_pgdata:
+  ha_meili:
+  ha_minio:

@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hellenic Antiquities</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600;700&family=Raleway:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --gold: #c9a84c;
+    --gold-pale: #f5ebb0;
+    --bronze: #8a6a2a;
+    --bronze-dark: #4a3a18;
+    --cream: #fdf8ec;
+    --warm-bg: #f7f0dc;
+    --text-dark: #1e1a10;
+    --text-mid: #4a3f28;
+    --text-light: #7a6a48;
+    --shadow: 0 4px 30px rgba(60,40,10,0.13);
+    --transition: 1.15s cubic-bezier(0.77, 0, 0.18, 1);
+    --hero-yellow: #f3e46a;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Raleway', sans-serif;
+    background: var(--warm-bg);
+    color: var(--text-dark);
+}
+
+/* ================================================================
+   TWO-PANEL SYSTEM
+   ================================================================ */
+#scroll-container {
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+}
+.panel {
+    position: absolute;
+    left: 0; right: 0;
+    height: 100vh;
+    will-change: transform;
+    transition: transform var(--transition);
+}
+#panel-hero    { top: 0;     transform: translateY(0); }
+#panel-content { top: 100vh; transform: translateY(0); }
+body.shifted #panel-hero    { transform: translateY(-100vh); }
+body.shifted #panel-content { transform: translateY(-100vh); }
+
+/* ================================================================
+   NAVBAR
+   ================================================================ */
+.navbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 200;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 48px;
+    height: 64px;
+    background: rgba(253,248,236,0.82);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(201,168,76,0.25);
+    transition: background 0.35s, box-shadow 0.35s;
+}
+.navbar.solid {
+    background: rgba(253,248,236,0.97);
+    box-shadow: 0 2px 20px rgba(60,40,10,0.08);
+}
+.nav-logo {
+    font-family: 'Cinzel', serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--bronze-dark);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+.nav-logo span { color: var(--gold); }
+.nav-left { display: flex; gap: 4px; align-items: center; }
+.nav-item {
+    position: relative;
+    cursor: pointer;
+    font-family: 'Raleway', sans-serif;
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    color: var(--text-mid);
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: color 0.2s, background 0.2s;
+    white-space: nowrap;
+}
+.nav-item { user-select: none; }
+.nav-item.open { color: var(--bronze); background: rgba(201,168,76,0.10); }
+.nav-item:hover { color: var(--bronze); background: rgba(201,168,76,0.10); }
+
+/* Invisible bridge fills the gap between nav-item and dropdown so mouse
+   moving downward doesn't accidentally leave the hover zone */
+.nav-item::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: -10px;
+    right: -10px;
+    height: 16px; /* covers the 8px gap + a little extra */
+    display: none;
+}
+.nav-item.open::after { display: block; }
+
+.dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    background: var(--cream);
+    padding: 6px 0;
+    border-radius: 10px;
+    box-shadow: 0 8px 36px rgba(60,40,10,0.14);
+    width: 230px;
+    border: 1px solid rgba(201,168,76,0.2);
+    z-index: 300;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    pointer-events: none;
+}
+.nav-item.open .dropdown {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+.dropdown div {
+    padding: 9px 16px 9px 28px;
+    font-size: 13px;
+    color: var(--text-mid);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    font-family: 'Raleway', sans-serif;
+    position: relative;
+    /* subtle underline */
+    border-bottom: 1px solid rgba(201,168,76,0.08);
+}
+.dropdown div:last-child { border-bottom: none; }
+/* dot before each item */
+.dropdown div::before {
+    content: '◆';
+    position: absolute;
+    left: 12px;
+    color: var(--gold);
+    font-size: 7px;
+    line-height: 1;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.85;
+}
+.dropdown div:hover {
+    background: rgba(201,168,76,0.10);
+    color: var(--bronze);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-color: rgba(201,168,76,0.4);
+}
+.lang-switch {
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    color: var(--text-light);
+    border: 1px solid rgba(201,168,76,0.4);
+    padding: 5px 12px;
+    border-radius: 20px;
+    transition: all 0.2s;
+}
+.lang-switch:hover { background: var(--gold); color: white; border-color: var(--gold); }
+
+/* ================================================================
+   PANEL 1 — HERO
+   ================================================================ */
+#panel-hero {
+    background: var(--hero-yellow);
+    overflow: hidden;
+}
+.hero-wash {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 30% 60%, rgba(243,228,106,0.0) 0%, rgba(200,160,60,0.18) 100%);
+    pointer-events: none;
+}
+.athena-img {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    height: 90vh;
+    width: auto;
+    object-fit: contain;
+    object-position: bottom right;
+    mix-blend-mode: multiply;
+    filter: sepia(12%) saturate(110%) brightness(0.97);
+    -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0) 0%, rgba(0,0,0,0.6) 8%, rgba(0,0,0,1) 22%, rgba(0,0,0,1) 100%);
+    mask-image: linear-gradient(to top, rgba(0,0,0,0) 0%, rgba(0,0,0,0.6) 8%, rgba(0,0,0,1) 22%, rgba(0,0,0,1) 100%);
+    user-select: none;
+    pointer-events: none;
+}
+/* Hero layout: left text block + centred search floated above */
+.hero-content {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 100px 88px 80px;
+    max-width: 580px;
+}
+.hero-label {
+    font-family: 'Cinzel', serif;
+    font-size: 10.5px;
+    letter-spacing: 0.3em;
+    color: var(--bronze);
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    opacity: 0.85;
+}
+.hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(56px, 7.5vw, 96px);
+    font-weight: 300;
+    line-height: 1.03;
+    color: var(--bronze-dark);
+    margin-bottom: 22px;
+}
+.hero-title em { font-style: italic; color: var(--bronze); }
+.hero-subtitle {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text-mid);
+    line-height: 1.75;
+    margin-bottom: 0;
+    max-width: 420px;
+}
+
+/* Search floated independently — centred horizontally, upper half */
+.search-float {
+    position: absolute;
+    z-index: 5;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 65%;
+    width: min(400px, 36vw);
+}
+.search-wrapper {
+    position: relative;
+    width: 100%;
+}
+.search-bar {
+    width: 100%;
+    padding: 19px 66px 19px 28px;
+    border-radius: 50px;
+    border: 1.5px solid rgba(138,106,42,0.35);
+    background: rgba(253,248,236,0.92);
+    font-size: 16px;
+    font-family: 'Raleway', sans-serif;
+    color: var(--text-dark);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 6px 28px rgba(60,40,10,0.12);
+}
+.search-bar::placeholder { color: var(--text-light); }
+.search-bar:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.18), 0 6px 28px rgba(60,40,10,0.12); }
+.search-btn {
+    position: absolute;
+    right: 7px; top: 50%;
+    transform: translateY(-50%);
+    background: var(--gold);
+    border: none;
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s, transform 0.15s;
+}
+.search-btn:hover { background: var(--bronze); transform: translateY(-50%) scale(1.06); }
+.search-btn svg { width: 18px; height: 18px; }
+
+/* Live search dropdown */
+.search-results {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0; right: 0;
+    background: rgba(253,248,236,0.97);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 16px;
+    box-shadow: 0 12px 40px rgba(60,40,10,0.15);
+    overflow: hidden;
+    display: none;
+    z-index: 50;
+}
+.search-results.active { display: block; }
+.search-result-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 20px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(201,168,76,0.1);
+    transition: background 0.15s;
+}
+.search-result-item:last-child { border-bottom: none; }
+.search-result-item:hover { background: rgba(201,168,76,0.10); }
+.sri-icon {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: rgba(201,168,76,0.15);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 14px;
+}
+.sri-text { display: flex; flex-direction: column; gap: 1px; }
+.sri-name { font-family: 'Cormorant Garamond', serif; font-size: 15px; font-weight: 600; color: var(--text-dark); }
+.sri-cat  { font-size: 10.5px; font-family: 'Cinzel', serif; letter-spacing: 0.1em; color: var(--gold); text-transform: uppercase; }
+.search-no-results {
+    padding: 14px 20px;
+    font-size: 13px;
+    color: var(--text-light);
+    font-style: italic;
+    text-align: center;
+}
+
+/* ================================================================
+   DOWN ARROW
+   ================================================================ */
+#arrow-down {
+    position: absolute;
+    bottom: 38px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    width: 54px; height: 54px;
+    border-radius: 50%;
+    background: rgba(253,248,236,0.88);
+    border: 1.5px solid rgba(201,168,76,0.5);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 28px rgba(60,40,10,0.18);
+    backdrop-filter: blur(8px);
+    transition: background 0.2s, box-shadow 0.2s;
+    animation: bounce-d 2s ease-in-out infinite;
+}
+#arrow-down:hover {
+    background: var(--gold);
+    box-shadow: 0 8px 36px rgba(138,106,42,0.35);
+    animation: none;
+    transform: translateX(-50%) scale(1.08);
+}
+#arrow-down:hover svg { stroke: white; }
+#arrow-down svg {
+    width: 22px; height: 22px;
+    stroke: var(--bronze);
+    stroke-width: 2.2;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: stroke 0.2s;
+}
+@keyframes bounce-d {
+    0%,100% { transform: translateX(-50%) translateY(0); }
+    50%      { transform: translateX(-50%) translateY(8px); }
+}
+
+/* ================================================================
+   UP ARROW — inline row between categories bar and content headers
+   ================================================================ */
+.arrow-up-row {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 7px 0;
+    background: var(--warm-bg);
+}
+#arrow-up {
+    position: relative;
+    top: auto; right: auto;
+    transform: none;
+    z-index: 20;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: rgba(74,58,24,0.12);
+    border: 1px solid rgba(201,168,76,0.40);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 8px rgba(60,40,10,0.08);
+    opacity: 0.65;
+    transition: background 0.2s, opacity 0.2s, box-shadow 0.2s, transform 0.2s;
+    animation: bounce-u 2.4s ease-in-out infinite;
+}
+#arrow-up:hover {
+    background: var(--gold);
+    opacity: 1;
+    box-shadow: 0 5px 16px rgba(138,106,42,0.28);
+    animation: none;
+    transform: scale(1.12);
+}
+#arrow-up svg {
+    width: 14px; height: 14px;
+    stroke: var(--bronze);
+    stroke-width: 2.4;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: stroke 0.2s;
+}
+#arrow-up:hover svg { stroke: white; }
+@keyframes bounce-u {
+    0%,100% { transform: translateY(0);   opacity: 0.65; }
+    50%      { transform: translateY(-4px); opacity: 0.90; }
+}
+
+/* ================================================================
+   PANEL 2 — CONTENT
+   Full-height, no scroll — everything fits inside
+   ================================================================ */
+#panel-content {
+    background: var(--warm-bg);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}
+
+/* ── Categories strip (below navbar) ── */
+.categories-strip {
+    flex-shrink: 0;
+    background: var(--bronze-dark);
+    margin-top: 64px; /* navbar height */
+    padding: 16px 60px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: nowrap;
+    justify-content: center;
+    overflow-x: auto;
+}
+.cat-pill {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(201,168,76,0.3);
+    color: var(--gold-pale);
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    padding: 8px 18px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.cat-pill:hover { background: var(--gold); color: var(--bronze-dark); border-color: var(--gold); }
+
+/* ── Main body: statue left + content right ── */
+.content-body {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* Left column: statue image */
+.statue-col {
+    flex-shrink: 0;
+    width: 320px;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+}
+.hermes-img {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 108%;
+    height: auto;
+    object-fit: contain;
+    object-position: bottom left;
+    mix-blend-mode: multiply;
+    filter: sepia(8%) saturate(105%) brightness(0.98);
+    /* softer fade — stays visible longer before disappearing */
+    -webkit-mask-image:
+        linear-gradient(to top,  rgba(0,0,0,1) 0%, rgba(0,0,0,1) 62%, rgba(0,0,0,0.4) 82%, rgba(0,0,0,0) 100%),
+        linear-gradient(to right, rgba(0,0,0,1) 65%, rgba(0,0,0,0.2) 90%, rgba(0,0,0,0) 100%);
+    -webkit-mask-composite: source-in;
+    mask-image:
+        linear-gradient(to top,  rgba(0,0,0,1) 0%, rgba(0,0,0,1) 62%, rgba(0,0,0,0.4) 82%, rgba(0,0,0,0) 100%),
+        linear-gradient(to right, rgba(0,0,0,1) 65%, rgba(0,0,0,0.2) 90%, rgba(0,0,0,0) 100%);
+    mask-composite: intersect;
+    user-select: none;
+    pointer-events: none;
+}
+
+/* Right column: articles + popular side by side */
+.main-col {
+    flex: 1;
+    padding: 16px 20px 16px 20px;
+    display: flex;
+    gap: 24px;
+    min-width: 0;
+    align-items: flex-start;
+}
+
+/* ── Articles ── */
+.articles {
+    flex: 3;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-shrink: 0;
+}
+.section-header h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--bronze-dark);
+    white-space: nowrap;
+}
+.section-line { flex: 1; height: 1px; background: linear-gradient(to right, rgba(201,168,76,0.5), transparent); }
+.section-dot  { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+
+/* Scrollable list — fixed height, 3 items visible */
+.articles-scroll {
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: calc(3 * 97px); /* 3 items × (70px img + 13px pad×2 + ~1px border) */
+    padding-right: 6px;
+    scroll-behavior: smooth;
+}
+/* custom slim scrollbar */
+.articles-scroll::-webkit-scrollbar { width: 4px; }
+.articles-scroll::-webkit-scrollbar-track { background: rgba(201,168,76,0.06); border-radius: 4px; }
+.articles-scroll::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.45); border-radius: 4px; }
+.articles-scroll::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+.article {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 8px;
+    background: white;
+    padding: 13px;
+    border-radius: 12px;
+    border: 1px solid rgba(201,168,76,0.12);
+    box-shadow: var(--shadow);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.22s, box-shadow 0.22s, border-color 0.22s;
+    flex-shrink: 0;
+}
+.article:last-child { margin-bottom: 0; }
+.article:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(60,40,10,0.12); border-color: rgba(201,168,76,0.3); }
+.article-img-wrap { flex-shrink: 0; width: 100px; height: 70px; border-radius: 8px; overflow: hidden; }
+.article-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+.article:hover .article-img-wrap img { transform: scale(1.07); }
+.article-info { display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+.article-tag { font-size: 9.5px; font-family: 'Cinzel', serif; letter-spacing: 0.12em; color: var(--gold); text-transform: uppercase; }
+.article-title { font-family: 'Cormorant Garamond', serif; font-size: 15px; font-weight: 600; color: var(--text-dark); line-height: 1.25; }
+.article-date { font-size: 10.5px; color: var(--text-light); font-weight: 300; }
+
+/* ── Popular ── */
+.popular {
+    flex: 1;
+    min-width: 170px;
+    max-width: 210px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Scrollable list — same height as articles */
+.popular-scroll {
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 6px;
+    scroll-behavior: smooth;
+}
+/* same scrollbar style */
+.popular-scroll::-webkit-scrollbar { width: 4px; }
+.popular-scroll::-webkit-scrollbar-track { background: rgba(201,168,76,0.06); border-radius: 4px; }
+.popular-scroll::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.45); border-radius: 4px; }
+.popular-scroll::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+.popular-item {
+    background: white;
+    margin-bottom: 8px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(201,168,76,0.12);
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: transform 0.22s, box-shadow 0.22s;
+    flex-shrink: 0;
+}
+.popular-item:last-child { margin-bottom: 0; }
+.popular-item:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(60,40,10,0.13); }
+.popular-img-wrap { width: 100%; height: 110px; overflow: hidden; }
+.popular-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+.popular-item:hover .popular-img-wrap img { transform: scale(1.06); }
+.popular-label { padding: 9px 11px 3px; font-family: 'Cormorant Garamond', serif; font-size: 13.5px; font-weight: 600; color: var(--text-dark); }
+.popular-sub   { padding: 0 11px 9px; font-size: 10px; color: var(--text-light); font-weight: 300; }
+
+/* ── Footer ── */
+footer {
+    flex-shrink: 0;
+    background: var(--bronze-dark);
+    color: rgba(245,232,170,0.55);
+    text-align: center;
+    padding: 14px 40px;
+    font-size: 11.5px;
+    letter-spacing: 0.06em;
+}
+footer strong {
+    color: var(--gold-pale);
+    font-family: 'Cinzel', serif;
+    font-weight: 400;
+    font-size: 12.5px;
+}
+
+/* ================================================================
+   PROGRESS DOTS — between popular right edge and viewport right
+   ================================================================ */
+.progress-dots {
+    position: fixed;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 150;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.pdot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(138,106,42,0.2);
+    border: 1.5px solid rgba(138,106,42,0.35);
+    cursor: pointer;
+    transition: background 0.3s, transform 0.3s;
+}
+.pdot.active { background: var(--gold); border-color: var(--gold); transform: scale(1.4); }
+
+/* ================================================================
+   REVEAL
+   ================================================================ */
+.reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.reveal.visible { opacity: 1; transform: none; }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+    <a class="nav-logo" href="#">⊕ <span>Hellenic</span> Antiquities</a>
+    <div class="nav-left">
+        <div class="nav-item">Άρθρα & Ανακοινώσεις
+            <div class="dropdown">
+                <div>Επιστημονικά άρθρα</div>
+                <div>Ενημερωτικά άρθρα</div>
+                <div>Ανακοινώσεις δράσεων</div>
+            </div>
+        </div>
+        <div class="nav-item">Συλλογές
+            <div class="dropdown">
+                <div onclick="location.href='collections/sculptures/index.html'">Αγάλματα</div>
+                <div>Αγαλματίδια</div>
+                <div>Προτομές</div>
+                <div>Αγγεία</div>
+                <div>Κοσμήματα</div>
+                <div>Ψηφιδωτά</div>
+                <div>Επιγραφές</div>
+            </div>
+        </div>
+        <div class="nav-item">Μουσεία
+            <div class="dropdown">
+                <div>Ανά γεωγραφική περιοχή</div>
+                <div>Ανά νομό</div>
+            </div>
+        </div>
+        <div class="nav-item">Αρχαιολογικοί Χώροι
+            <div class="dropdown">
+                <div>Ανά νομό</div>
+                <div>UNESCO</div>
+                <div>Ναοί</div>
+                <div>Θέατρα</div>
+                <div>Ακροπόλεις</div>
+            </div>
+        </div>
+        <div class="nav-item">Πρόσωπα
+            <div class="dropdown">
+                <div>Θεοί & Ημίθεοι</div>
+                <div>Ήρωες</div>
+                <div>Μυθικά όντα</div>
+                <div>Φιλόσοφοι</div>
+                <div>Βασιλείς</div>
+                <div>Επιστήμονες</div>
+            </div>
+        </div>
+        <div class="nav-item">Έθιμα
+            <div class="dropdown">
+                <div>Ανά περιοχή</div>
+                <div>Αθλητικοί αγώνες</div>
+                <div>Παραδόσεις</div>
+            </div>
+        </div>
+        <div class="nav-item">Περισσότερα
+            <div class="dropdown">
+                <div>Σχετικά με εμάς</div>
+                <div>Επικοινωνία</div>
+                <div>Όροι χρήσης</div>
+            </div>
+        </div>
+    </div>
+    <div class="lang-switch">GR | EN</div>
+</nav>
+
+<!-- PROGRESS DOTS -->
+<div class="progress-dots">
+    <div class="pdot active" onclick="goToSection(0)"></div>
+    <div class="pdot"        onclick="goToSection(1)"></div>
+</div>
+
+<!-- ============================================================
+     SCROLL CONTAINER
+     ============================================================ -->
+<div id="scroll-container">
+
+    <!-- ── PANEL 1: HERO ── -->
+    <div class="panel" id="panel-hero">
+        <div class="hero-wash"></div>
+        <img class="athena-img" src="athena_blend.png" alt="Άγαλμα Αθηνάς">
+        <div class="hero-content">
+            <p class="hero-label">Ψηφιακό Αρχείο Ελληνικής Κληρονομιάς</p>
+            <h1 class="hero-title">Εξερεύνησε<br>την <em>Αρχαία</em><br>Ελλάδα</h1>
+            <p class="hero-subtitle">Εξερευνήστε χιλιάδες αντικείμενα, μύθους, χώρους και πρόσωπα που διαμόρφωσαν τον κόσμο.</p>
+        </div>
+
+        <!-- Search bar floated upper-centre -->
+        <div class="search-float">
+            <div class="search-wrapper">
+                <input class="search-bar" id="heroSearch" type="text" placeholder="Αναζήτηση — Ποσειδώνας, Ακρόπολη, Μουσείο…" autocomplete="off">
+                <button class="search-btn" aria-label="Αναζήτηση">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="6" stroke="white" stroke-width="2" fill="none"/>
+                        <line x1="16.5" y1="16.5" x2="21" y2="21" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+                <div class="search-results" id="searchResults"></div>
+            </div>
+        </div>
+        <button id="arrow-down" onclick="goToSection(1)" aria-label="Κύλιση κάτω">
+            <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+    </div>
+
+    <!-- ── PANEL 2: CONTENT ── -->
+    <div class="panel" id="panel-content">
+
+        <!-- categories bar -->
+        <div class="categories-strip">
+            <div class="cat-pill">Αγάλματα</div>
+            <div class="cat-pill">Αγγεία</div>
+            <div class="cat-pill">Θεοί & Μύθοι</div>
+            <div class="cat-pill">Ναοί</div>
+            <div class="cat-pill">Φιλόσοφοι</div>
+            <div class="cat-pill">Αθλητισμός</div>
+            <div class="cat-pill">UNESCO</div>
+            <div class="cat-pill">Μουσεία</div>
+            <div class="cat-pill">Επιγραφές</div>
+        </div>
+
+        <!-- Up arrow: centred between bar and section-header line -->
+        <div class="arrow-up-row">
+            <button id="arrow-up" onclick="goToSection(0)" aria-label="Επιστροφή πάνω">
+                <svg viewBox="0 0 24 24"><polyline points="6 15 12 9 18 15"/></svg>
+            </button>
+        </div>
+
+        <!-- body: statue col + scrollable content -->
+        <div class="content-body">
+
+            <!-- LEFT: statue -->
+            <div class="statue-col">
+                <img class="hermes-img" src="hermes_blend.png" alt="Ερμής του Πραξιτέλη">
+            </div>
+
+            <!-- RIGHT: articles + popular, fixed-height independent scrolls -->
+            <div class="main-col" id="main-col">
+
+                <!-- ARTICLES -->
+                <div class="articles" id="articles-col">
+                    <div class="section-header">
+                        <div class="section-dot"></div>
+                        <h2>Άρθρα & Ανακοινώσεις</h2>
+                        <div class="section-line"></div>
+                    </div>
+                    <div class="articles-scroll" id="articles-scroll">
+
+                        <a class="article" href="#">
+                            <div class="article-img-wrap"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/The_Parthenon_in_Athens.jpg/640px-The_Parthenon_in_Athens.jpg" alt="Ακρόπολη"></div>
+                            <div class="article-info">
+                                <span class="article-tag">Αρχαιολογία</span>
+                                <div class="article-title">Νέα ευρήματα στην Ακρόπολη</div>
+                                <div class="article-date">2 Απριλίου 2026</div>
+                            </div>
+                        </a>
+
+                        <a class="article" href="#">
+                            <div class="article-img-wrap"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Delphi_-_panoramio_%2831%29.jpg/640px-Delphi_-_panoramio_%2831%29.jpg" alt="Δελφοί"></div>
+                            <div class="article-info">
+                                <span class="article-tag">Ανασκαφές</span>
+                                <div class="article-title">Ανασκαφές στους Δελφούς</div>
+                                <div class="article-date">28 Μαρτίου 2026</div>
+                            </div>
+                        </a>
+
+                        <a class="article" href="#">
+                            <div class="article-img-wrap"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Olympia_-_Temple_of_Zeus_01.jpg/640px-Olympia_-_Temple_of_Zeus_01.jpg" alt="Ολυμπία"></div>
+                            <div class="article-info">
+                                <span class="article-tag">Αρχαιολογικοί Χώροι</span>
+                                <div class="article-title">Η Αρχαία Ολυμπία αποκαλύπτεται</div>
+                                <div class="article-date">20 Μαρτίου 2026</div>
+                            </div>
+                        </a>
+
+                        <a class="article" href="#">
+                            <div class="article-img-wrap"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Socrates_Louvre.jpg/480px-Socrates_Louvre.jpg" alt="Σωκράτης"></div>
+                            <div class="article-info">
+                                <span class="article-tag">Φιλόσοφοι</span>
+                                <div class="article-title">Σωκράτης: Η φιλοσοφία ως τρόπος ζωής</div>
+                                <div class="article-date">14 Μαρτίου 2026</div>
+                            </div>
+                        </a>
+
+                        <a class="article" href="#">
+                            <div class="article-img-wrap"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Camponotus_flavomarginatus_ant.jpg/320px-Camponotus_flavomarginatus_ant.jpg" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Temple_of_Hephaestus_from_NW_2.jpg/640px-Temple_of_Hephaestus_from_NW_2.jpg'" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Temple_of_Hephaestus_from_NW_2.jpg/640px-Temple_of_Hephaestus_from_NW_2.jpg" alt="Ναός Ηφαίστου"></div>
+                            <div class="article-info">
+                                <span class="article-tag">Ναοί</span>
+                                <div class="article-title">Τα Ελευσίνια Μυστήρια: Νέες αποκαλύψεις</div>
+                                <div class="article-date">8 Μαρτίου 2026</div>
+                            </div>
+                        </a>
+
+                        <a class="article" href="#">
+                            <div class="article-img-wrap"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Temple_of_Hephaestus_from_NW_2.jpg/640px-Temple_of_Hephaestus_from_NW_2.jpg" alt="Ναός Ηφαίστου"></div>
+                            <div class="article-info">
+                                <span class="article-tag">Ναοί</span>
+                                <div class="article-title">Ο Ναός Ηφαίστου — ο πιο σωστός ναός</div>
+                                <div class="article-date">1 Μαρτίου 2026</div>
+                            </div>
+                        </a>
+
+                        <a class="article" href="#">
+                            <div class="article-img-wrap"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Epidauros-Theater2.jpg/640px-Epidauros-Theater2.jpg" alt="Επίδαυρος"></div>
+                            <div class="article-info">
+                                <span class="article-tag">Θέατρα</span>
+                                <div class="article-title">Επίδαυρος: Ακουστική αιώνων</div>
+                                <div class="article-date">22 Φεβρουαρίου 2026</div>
+                            </div>
+                        </a>
+
+                        <a class="article" href="#">
+                            <div class="article-img-wrap"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/The_Lion_Gate_at_Mycenae.JPG/640px-The_Lion_Gate_at_Mycenae.JPG" alt="Μυκήνες"></div>
+                            <div class="article-info">
+                                <span class="article-tag">Αρχαιολογία</span>
+                                <div class="article-title">Μυκήνες: Πρωτεύουσα της Εποχής Χαλκού</div>
+                                <div class="article-date">15 Φεβρουαρίου 2026</div>
+                            </div>
+                        </a>
+
+                        <a class="article" href="#">
+                            <div class="article-img-wrap"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Knossos_-_North_Portico.jpg/640px-Knossos_-_North_Portico.jpg" alt="Κνωσός"></div>
+                            <div class="article-info">
+                                <span class="article-tag">Μινωικός Πολιτισμός</span>
+                                <div class="article-title">Κνωσός: Η καρδιά του Μινωικού κόσμου</div>
+                                <div class="article-date">7 Φεβρουαρίου 2026</div>
+                            </div>
+                        </a>
+
+                        <a class="article" href="#">
+                            <div class="article-img-wrap"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Greek_vase_Met_56.171.38.jpg/480px-Greek_vase_Met_56.171.38.jpg" alt="Αγγείο"></div>
+                            <div class="article-info">
+                                <span class="article-tag">Συλλογές</span>
+                                <div class="article-title">Αρχαία αγγεία: Ιστορίες στον πηλό</div>
+                                <div class="article-date">28 Ιανουαρίου 2026</div>
+                            </div>
+                        </a>
+
+                    </div><!-- /articles-scroll -->
+                </div><!-- /articles -->
+
+                <!-- POPULAR -->
+                <div class="popular" id="popular-col">
+                    <div class="section-header">
+                        <div class="section-dot"></div>
+                        <h2>Δημοφιλή</h2>
+                        <div class="section-line"></div>
+                    </div>
+                    <div class="popular-scroll" id="popular-scroll">
+
+                        <div class="popular-item">
+                            <div class="popular-img-wrap"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Aphrodite_of_Milos.jpg/480px-Aphrodite_of_Milos.jpg" alt="Αφροδίτη"></div>
+                            <div class="popular-label">Αφροδίτη της Μήλου</div>
+                            <div class="popular-sub">Μουσείο Λούβρου, Παρίσι</div>
+                        </div>
+
+                        <div class="popular-item">
+                            <div class="popular-img-wrap"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Mask_of_Agamemnon.jpg/480px-Mask_of_Agamemnon.jpg" alt="Αγαμέμνων"></div>
+                            <div class="popular-label">Μάσκα Αγαμέμνονα</div>
+                            <div class="popular-sub">Εθνικό Αρχαιολογικό Μουσείο</div>
+                        </div>
+
+                        <div class="popular-item">
+                            <div class="popular-img-wrap"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Winged_Victory_of_Samothrace.jpg/480px-Winged_Victory_of_Samothrace.jpg" alt="Νίκη Σαμοθράκης"></div>
+                            <div class="popular-label">Νίκη Σαμοθράκης</div>
+                            <div class="popular-sub">Μουσείο Λούβρου, Παρίσι</div>
+                        </div>
+
+                        <div class="popular-item">
+                            <div class="popular-img-wrap"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/NAMA_Antikythera_Fragment_1.jpg/480px-NAMA_Antikythera_Fragment_1.jpg" alt="Μηχανισμός Αντικυθήρων"></div>
+                            <div class="popular-label">Μηχανισμός Αντικυθήρων</div>
+                            <div class="popular-sub">Εθνικό Αρχαιολογικό Μουσείο</div>
+                        </div>
+
+                        <div class="popular-item">
+                            <div class="popular-img-wrap"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Discobolus_Palermo.jpg/480px-Discobolus_Palermo.jpg" alt="Δισκοβόλος"></div>
+                            <div class="popular-label">Δισκοβόλος του Μύρωνα</div>
+                            <div class="popular-sub">Εθνικό Μουσείο Ρώμης</div>
+                        </div>
+
+                        <div class="popular-item">
+                            <div class="popular-img-wrap"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Elgin_marbles_frieze_east_I_cropped.jpg/640px-Elgin_marbles_frieze_east_I_cropped.jpg" alt="Γλυπτά Παρθενώνα"></div>
+                            <div class="popular-label">Γλυπτά Παρθενώνα</div>
+                            <div class="popular-sub">Βρετανικό Μουσείο, Λονδίνο</div>
+                        </div>
+
+                        <div class="popular-item">
+                            <div class="popular-img-wrap"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Laocoon_and_His_Sons.jpg/480px-Laocoon_and_His_Sons.jpg" alt="Λαοκόων"></div>
+                            <div class="popular-label">Λαοκόων και οι Γιοί του</div>
+                            <div class="popular-sub">Μουσεία Βατικανού</div>
+                        </div>
+
+                        <div class="popular-item">
+                            <div class="popular-img-wrap"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Greek_Bronze_Artemision_Jockey.jpg/480px-Greek_Bronze_Artemision_Jockey.jpg" alt="Ιππέας Αρτεμισίου"></div>
+                            <div class="popular-label">Ιππέας Αρτεμισίου</div>
+                            <div class="popular-sub">Εθνικό Αρχαιολογικό Μουσείο</div>
+                        </div>
+
+                        <div class="popular-item">
+                            <div class="popular-img-wrap"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/thirty/Riace_bronzes_-_Warrior_A.jpg/480px-Riace_bronzes_-_Warrior_A.jpg" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Hermes_Praxiteles_Olimpia.jpg/480px-Hermes_Praxiteles_Olimpia.jpg'" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Hermes_Praxiteles_Olimpia.jpg/480px-Hermes_Praxiteles_Olimpia.jpg" alt="Ερμής Πραξιτέλη"></div>
+                            <div class="popular-label">Ερμής Πραξιτέλη</div>
+                            <div class="popular-sub">Μουσείο Αρχαίας Ολυμπίας</div>
+                        </div>
+
+                        <div class="popular-item">
+                            <div class="popular-img-wrap"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Artemision_Bronze_Aachen_01.jpg/480px-Artemision_Bronze_Aachen_01.jpg" alt="Χάλκινος Ποσειδώνας"></div>
+                            <div class="popular-label">Χάλκινος Ποσειδώνας</div>
+                            <div class="popular-sub">Εθνικό Αρχαιολογικό Μουσείο</div>
+                        </div>
+
+                    </div><!-- /popular-scroll -->
+                </div><!-- /popular -->
+
+            </div><!-- /main-col -->
+        </div><!-- /content-body -->
+
+        <footer>
+            <strong>Hellenic Antiquities</strong>
+            &nbsp;·&nbsp; Ψηφιακό Αρχείο Ελληνικής Αρχαιότητας
+            &nbsp;·&nbsp; © 2026
+        </footer>
+
+    </div><!-- /panel-content -->
+</div><!-- /scroll-container -->
+
+<script>
+/* ================================================================
+   STATE
+   ================================================================ */
+let current = 0;
+let transitioning = false;
+const DURATION = 1150;
+
+const navbar   = document.getElementById('navbar');
+const dots     = document.querySelectorAll('.pdot');
+const mainCol  = document.getElementById('main-col');
+
+/* ================================================================
+   GO TO SECTION
+   ================================================================ */
+function goToSection(idx) {
+    if (transitioning || idx === current) return;
+    transitioning = true;
+    current = idx;
+
+    document.body.classList.toggle('shifted', idx === 1);
+    navbar.classList.toggle('solid', idx === 1);
+    dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+
+    if (idx === 1) setTimeout(triggerReveals, 400);
+    setTimeout(() => { transitioning = false; }, DURATION);
+}
+
+/* ================================================================
+   MOUSE WHEEL
+   ================================================================ */
+let wheelAcc = 0, wheelReset;
+const THRESHOLD = 90;
+
+window.addEventListener('wheel', (e) => {
+    if (current === 1) {
+        const atTop    = mainCol.scrollTop <= 0;
+        const atBottom = mainCol.scrollTop + mainCol.clientHeight >= mainCol.scrollHeight - 2;
+        if (e.deltaY < 0 && !atTop)    return;
+        if (e.deltaY > 0 && !atBottom) return;
+    }
+    e.preventDefault();
+    wheelAcc += e.deltaY;
+    clearTimeout(wheelReset);
+    wheelReset = setTimeout(() => { wheelAcc = 0; }, 500);
+    if (Math.abs(wheelAcc) >= THRESHOLD) {
+        const dir = wheelAcc > 0 ? 1 : -1;
+        wheelAcc = 0; clearTimeout(wheelReset);
+        if (dir > 0 && current === 0) goToSection(1);
+        if (dir < 0 && current === 1) goToSection(0);
+    }
+}, { passive: false });
+
+/* ================================================================
+   KEYBOARD
+   ================================================================ */
+window.addEventListener('keydown', (e) => {
+    if ((e.key === 'ArrowDown' || e.key === 'PageDown') && current === 0) goToSection(1);
+    if ((e.key === 'ArrowUp'   || e.key === 'PageUp')   && current === 1) goToSection(0);
+});
+
+/* ================================================================
+   TOUCH
+   ================================================================ */
+let ty0 = 0;
+window.addEventListener('touchstart', e => { ty0 = e.touches[0].clientY; }, { passive: true });
+window.addEventListener('touchend', e => {
+    const dy = ty0 - e.changedTouches[0].clientY;
+    if (Math.abs(dy) > 55) {
+        if (dy > 0 && current === 0) goToSection(1);
+        if (dy < 0 && current === 1) goToSection(0);
+    }
+});
+
+/* ================================================================
+   SYNC SCROLL HEIGHTS
+   Make articles-scroll and popular-scroll the same pixel height,
+   both showing exactly 3 articles / 2 popular items at rest.
+   ================================================================ */
+function syncScrollHeights() {
+    const aScroll = document.getElementById('articles-scroll');
+    const pScroll = document.getElementById('popular-scroll');
+    if (!aScroll || !pScroll) return;
+
+    // Measure one article card
+    const firstArticle = aScroll.querySelector('.article');
+    const firstPopular = pScroll.querySelector('.popular-item');
+    if (!firstArticle || !firstPopular) return;
+
+    // 3 articles tall
+    const aItemH = firstArticle.getBoundingClientRect().height + 8; // +margin-bottom
+    const aHeight = Math.round(aItemH * 3);
+
+    // match popular to same pixel height
+    aScroll.style.height = aHeight + 'px';
+    pScroll.style.height = aHeight + 'px';
+}
+
+// Run after fonts/images settle
+window.addEventListener('load', syncScrollHeights);
+setTimeout(syncScrollHeights, 600);
+
+/* ================================================================
+   REVEAL (kept for compatibility)
+   ================================================================ */
+function triggerReveals() {
+    document.querySelectorAll('.reveal:not(.visible)').forEach((el, i) => {
+        setTimeout(() => el.classList.add('visible'), i * 100);
+    });
+}
+
+/* ================================================================
+   DROPDOWN — JS-controlled so the gap between nav-item and
+   dropdown panel doesn't cause flicker/close on mouse move down.
+   Uses a close-delay timer that is cancelled if the mouse re-enters
+   either the trigger or the dropdown panel itself.
+   ================================================================ */
+document.querySelectorAll('.nav-item').forEach(item => {
+    const dropdown = item.querySelector('.dropdown');
+    if (!dropdown) return;
+
+    let closeTimer = null;
+
+    function openDropdown() {
+        clearTimeout(closeTimer);
+        // Close any other open dropdown first
+        document.querySelectorAll('.nav-item.open').forEach(other => {
+            if (other !== item) other.classList.remove('open');
+        });
+        item.classList.add('open');
+    }
+
+    function scheduleClose() {
+        clearTimeout(closeTimer);
+        closeTimer = setTimeout(() => {
+            item.classList.remove('open');
+        }, 120); // 120 ms grace — enough for mouse to travel into dropdown
+    }
+
+    item.addEventListener('mouseenter', openDropdown);
+    item.addEventListener('mouseleave', scheduleClose);
+    dropdown.addEventListener('mouseenter', () => clearTimeout(closeTimer));
+    dropdown.addEventListener('mouseleave', scheduleClose);
+});
+
+/* ================================================================
+   LIVE SEARCH
+   ================================================================ */
+const SEARCH_DATA = [
+    { name: 'Ποσειδώνας',         cat: 'Θεοί & Μύθοι',    icon: '🔱' },
+    { name: 'Αθηνά',              cat: 'Θεοί & Μύθοι',    icon: '🦉' },
+    { name: 'Απόλλων',            cat: 'Θεοί & Μύθοι',    icon: '☀️' },
+    { name: 'Αφροδίτη',           cat: 'Συλλογές',        icon: '🏛️' },
+    { name: 'Ακρόπολη',           cat: 'Αρχαιολογικοί Χώροι', icon: '🏛️' },
+    { name: 'Δελφοί',             cat: 'Αρχαιολογικοί Χώροι', icon: '🏛️' },
+    { name: 'Ολυμπία',            cat: 'Αρχαιολογικοί Χώροι', icon: '🏛️' },
+    { name: 'Εθνικό Αρχαιολογικό Μουσείο', cat: 'Μουσεία', icon: '🏛️' },
+    { name: 'Μουσείο Ακρόπολης',  cat: 'Μουσεία',          icon: '🏛️' },
+    { name: 'Σωκράτης',           cat: 'Φιλόσοφοι',        icon: '📜' },
+    { name: 'Πλάτων',             cat: 'Φιλόσοφοι',        icon: '📜' },
+    { name: 'Αριστοτέλης',        cat: 'Φιλόσοφοι',        icon: '📜' },
+    { name: 'Αγαμέμνονας',        cat: 'Ήρωες',            icon: '⚔️' },
+    { name: 'Αχιλλέας',           cat: 'Ήρωες',            icon: '⚔️' },
+    { name: 'Οδυσσέας',           cat: 'Ήρωες',            icon: '⚓' },
+    { name: 'Παρθενώνας',         cat: 'Ναοί',             icon: '🏛️' },
+    { name: 'Ναός Ηφαίστου',      cat: 'Ναοί',             icon: '🏛️' },
+    { name: 'Επίδαυρος',          cat: 'Θέατρα',           icon: '🎭' },
+    { name: 'Μάσκα Αγαμέμνονα',   cat: 'Συλλογές',        icon: '🪙' },
+    { name: 'Αφροδίτη της Μήλου', cat: 'Αγάλματα',         icon: '🗿' },
+    { name: 'Δίας',               cat: 'Θεοί & Μύθοι',    icon: '⚡' },
+    { name: 'Ηρακλής',            cat: 'Ήρωες',            icon: '🦁' },
+    { name: 'Ολυμπιακοί Αγώνες',  cat: 'Αθλητισμός',      icon: '🏅' },
+    { name: 'Κνωσός',             cat: 'Αρχαιολογικοί Χώροι', icon: '🏛️' },
+];
+
+const searchInput   = document.getElementById('heroSearch');
+const searchResults = document.getElementById('searchResults');
+
+searchInput.addEventListener('input', () => {
+    const q = searchInput.value.trim().toLowerCase();
+    searchResults.innerHTML = '';
+
+    if (!q) { searchResults.classList.remove('active'); return; }
+
+    const matches = SEARCH_DATA.filter(d =>
+        d.name.toLowerCase().includes(q) || d.cat.toLowerCase().includes(q)
+    ).slice(0, 7);
+
+    if (matches.length === 0) {
+        searchResults.innerHTML = `<div class="search-no-results">Δεν βρέθηκαν αποτελέσματα για «${searchInput.value}»</div>`;
+    } else {
+        matches.forEach(item => {
+            const el = document.createElement('div');
+            el.className = 'search-result-item';
+            el.innerHTML = `
+                <div class="sri-icon">${item.icon}</div>
+                <div class="sri-text">
+                    <span class="sri-name">${item.name}</span>
+                    <span class="sri-cat">${item.cat}</span>
+                </div>`;
+            el.addEventListener('click', () => {
+                searchInput.value = item.name;
+                searchResults.classList.remove('active');
+            });
+            searchResults.appendChild(el);
+        });
+    }
+    searchResults.classList.add('active');
+});
+
+// Close on outside click
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.nav-item')) {
+        document.querySelectorAll('.nav-item.open').forEach(i => i.classList.remove('open'));
+    }
+    if (!e.target.closest('.search-float')) {
+        searchResults.classList.remove('active');
+    }
+});
+searchInput.addEventListener('focus', () => {
+    if (searchInput.value.trim()) searchResults.classList.add('active');
+});
+</script>
+
+</body>
+</html>
